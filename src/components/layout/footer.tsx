@@ -180,7 +180,7 @@ export function Footer() {
                       aria-label={social.label}
                       className="flex h-9 w-9 items-center justify-center rounded-full border border-charcoal-700 text-charcoal-400 transition-all hover:border-gold-500 hover:bg-gold-500/10 hover:text-gold-400"
                     >
-                      <Icon className="h-4 w-4" />
+                      <Icon />
                     </a>
                   )
                 })}

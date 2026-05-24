@@ -37,7 +37,7 @@ export function MobileNav() {
                 ? pathname === '/'
                 : pathname === item.href || pathname.startsWith(item.href + '/')
             const Icon = item.icon
-            const badgeCount = getBadge(item.badge)
+            const badgeCount = getBadge((item as any).badge)
 
             return (
               <Link

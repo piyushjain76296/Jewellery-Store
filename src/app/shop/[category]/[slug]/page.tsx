@@ -174,10 +174,10 @@ export default function ProductDetailPage({ params }: PDPProps) {
 
             {/* Variant Selectors */}
             <div className="space-y-5 pt-2">
-              <MetalSelector selectedMetal={selectedMetal} onSelect={setSelectedMetal} availableMetals={availableMetals} />
-              <KaratSelector selectedKarat={selectedKarat} onSelect={setSelectedKarat} availableKarats={availableKarats} />
+              <MetalSelector selectedMetal={selectedMetal} onSelect={(m) => setSelectedMetal(m as any)} availableMetals={availableMetals} />
+              <KaratSelector selectedKarat={selectedKarat} onSelect={(k) => setSelectedKarat(k as any)} availableKarats={availableKarats} />
               {availableStones.length > 1 && (
-                <StoneSelector selectedStone={selectedStone} onSelect={setSelectedStone} availableStones={availableStones} />
+                <StoneSelector selectedStone={selectedStone} onSelect={(s) => setSelectedStone(s as any)} availableStones={availableStones} />
               )}
               {isRing && availableSizes.length > 0 && (
                 <RingSizeGuide selectedSize={selectedSize} onSelect={setSelectedSize} availableSizes={availableSizes} />
