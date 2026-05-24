@@ -1,5 +1,6 @@
 'use client'
 
+import { SessionProvider } from 'next-auth/react'
 import { createContext, useContext, useRef, type ReactNode } from 'react'
 import { useStore } from 'zustand'
 import { createCartStore, type CartState, type CartStore } from './cart-store'
@@ -47,13 +48,15 @@ export function useWishlistStore<T>(selector: (state: WishlistState) => T): T {
   return useStore(store, selector)
 }
 
-// Combined provider
+// Combined provider — includes SessionProvider for next-auth
 export function StoreProvider({ children }: { children: ReactNode }) {
   return (
-    <CartStoreProvider>
-      <WishlistStoreProvider>
-        {children}
-      </WishlistStoreProvider>
-    </CartStoreProvider>
+    <SessionProvider>
+      <CartStoreProvider>
+        <WishlistStoreProvider>
+          {children}
+        </WishlistStoreProvider>
+      </CartStoreProvider>
+    </SessionProvider>
   )
 }
