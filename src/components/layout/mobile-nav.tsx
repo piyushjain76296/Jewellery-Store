@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion } from 'motion/react'
@@ -19,6 +20,9 @@ export function MobileNav() {
   const pathname = usePathname()
   const cartCount = useCartStore((s) => s.getTotalItems())
   const wishlistCount = useWishlistStore((s) => s.getTotalItems())
+  
+  const [isMounted, setIsMounted] = useState(false)
+  useEffect(() => setIsMounted(true), [])
 
   const getBadge = (type?: 'cart' | 'wishlist') => {
     if (type === 'cart') return cartCount
@@ -64,7 +68,7 @@ export function MobileNav() {
                   </motion.div>
 
                   {/* Badge */}
-                  {badgeCount > 0 && (
+                  {isMounted && badgeCount > 0 && (
                     <motion.span
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}

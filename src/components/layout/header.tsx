@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { useCartStore, useWishlistStore } from '@/store/providers'
 import { cn } from '@/lib/utils'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 const navLinks = [
   { label: 'Shop', href: '/shop' },
@@ -36,30 +37,23 @@ const mobileMenuLinks = [
 
 /* ──────────────────────────────────────── Gold Price Ticker ── */
 function GoldPriceTicker() {
+  const text = "Gold 22K: ₹6,850/g ▲  |  Gold 24K: ₹7,200/g ▲  |  Silver: ₹85/g ▼  |  Platinum: ₹3,120/g ▲  |  Diamond (1ct IF): ₹4,25,000 ▲  |  "
+  
   return (
-    <div className="overflow-hidden bg-charcoal-900 py-1 dark:bg-charcoal-900">
-      <div className="ticker-track flex whitespace-nowrap">
-        {[0, 1, 2].map((i) => (
-          <span
-            key={i}
-            className="inline-block animate-[marquee_28s_linear_infinite] px-8 text-xs tracking-wide text-gold-400"
-            style={{ animationDelay: `${i * -9.33}s` }}
-          >
-            Gold 22K: ₹6,850/g ▲&nbsp;&nbsp;|&nbsp;&nbsp;Gold 24K: ₹7,200/g
-            ▲&nbsp;&nbsp;|&nbsp;&nbsp;Silver: ₹85/g ▼&nbsp;&nbsp;|&nbsp;&nbsp;Platinum:
-            ₹3,120/g ▲&nbsp;&nbsp;|&nbsp;&nbsp;Diamond (1ct IF): ₹4,25,000
-            ▲&nbsp;&nbsp;|&nbsp;&nbsp;
-          </span>
-        ))}
+    <div className="overflow-hidden bg-charcoal-900 py-1.5 flex whitespace-nowrap">
+      <div className="animate-[marquee_40s_linear_infinite] flex">
+        <span className="px-4 text-xs tracking-wide text-gold-400">{text}</span>
+        <span className="px-4 text-xs tracking-wide text-gold-400">{text}</span>
+        <span className="px-4 text-xs tracking-wide text-gold-400">{text}</span>
+        <span className="px-4 text-xs tracking-wide text-gold-400">{text}</span>
       </div>
-      {/* inline keyframe for marquee */}
       <style jsx>{`
         @keyframes marquee {
           0% {
             transform: translateX(0);
           }
           100% {
-            transform: translateX(-100%);
+            transform: translateX(-50%);
           }
         }
       `}</style>
@@ -102,6 +96,11 @@ function NavLink({ href, label }: { href: string; label: string }) {
 
 /* ─────────────────────────────────────── Icon Badge ── */
 function IconBadge({ count }: { count: number }) {
+  const [isMounted, setIsMounted] = useState(false)
+  useEffect(() => setIsMounted(true), [])
+  
+  if (!isMounted) return null
+
   return (
     <AnimatePresence>
       {count > 0 && (
@@ -353,6 +352,9 @@ export function Header() {
 
           {/* ─── Right: Icons ─── */}
           <div className="flex items-center gap-1 sm:gap-2">
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
             {/* Search */}
             <button
               onClick={() => setSearchOpen(true)}

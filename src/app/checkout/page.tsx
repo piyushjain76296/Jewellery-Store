@@ -1,23 +1,34 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { MapPin, CreditCard, Truck, ChevronRight, Home, Shield, Check, Loader2 } from 'lucide-react'
 import { cn, formatPrice } from '@/lib/utils'
 import { useCartStore } from '@/store/providers'
+import { createOrder, getSavedAddresses } from '@/actions/checkout'
 
 type Step = 'address' | 'review' | 'payment'
 
 export default function CheckoutPage() {
+  const router = useRouter()
   const items = useCartStore((s) => s.items)
   const getSubtotal = useCartStore((s) => s.getSubtotal)
   const getGST = useCartStore((s) => s.getGST)
   const getTotal = useCartStore((s) => s.getTotal)
   const couponDiscount = useCartStore((s) => s.couponDiscount)
+  const clearCart = useCartStore((s) => s.clearCart)
 
   const [step, setStep] = useState<Step>('address')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([])
+
+  useEffect(() => {
+    getSavedAddresses().then(setSavedAddresses)
+  }, [])
 
   const [address, setAddress] = useState({
     name: '', phone: '', line1: '', line2: '', city: '', state: '', pincode: ''
@@ -32,9 +43,26 @@ export default function CheckoutPage() {
   ]
 
   const handlePlaceOrder = async () => {
+    setError(null)
     setLoading(true)
-    await new Promise(r => setTimeout(r, 2000))
-    window.location.href = '/checkout/success'
+    
+    const res = await createOrder({
+      items: items.map(i => ({ variantId: i.variantId, productId: i.productId, productName: i.productName, quantity: i.quantity, price: i.price })),
+      address,
+      paymentMethod,
+      subtotal: getSubtotal(),
+      tax: getGST(),
+      shippingCharge: 0,
+      total: getTotal() + (paymentMethod === 'cod' ? 50 : 0)
+    })
+
+    if (res.success) {
+      clearCart()
+      router.push(`/checkout/success?orderId=${res.orderId}`)
+    } else {
+      setError(res.error || 'Failed to place order')
+      setLoading(false)
+    }
   }
 
   if (items.length === 0) {
@@ -89,6 +117,37 @@ export default function CheckoutPage() {
             {step === 'address' && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                 <h2 className="font-display text-2xl mb-4">Delivery Address</h2>
+
+                {savedAddresses.length > 0 && (
+                  <div className="mb-6">
+                    <p className="text-sm font-medium mb-3">Saved Addresses</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {savedAddresses.map((addr) => (
+                        <button
+                          key={addr.id}
+                          onClick={() => setAddress({
+                            name: address.name, // keep current typed name or let them type
+                            phone: addr.phone,
+                            line1: addr.line1,
+                            line2: addr.line2 || '',
+                            city: addr.city,
+                            state: addr.state,
+                            pincode: addr.pincode
+                          })}
+                          className="text-left p-3 rounded-lg border border-[var(--border)] hover:border-gold-300 transition-colors bg-[var(--card)] relative"
+                        >
+                          <p className="text-sm font-medium">{addr.label || 'Home'}</p>
+                          <p className="text-xs text-[var(--muted-foreground)] mt-1 truncate">{addr.line1}</p>
+                          <p className="text-xs text-[var(--muted-foreground)] truncate">{addr.city}, {addr.pincode}</p>
+                        </button>
+                      ))}
+                    </div>
+                    <div className="my-6 border-t border-[var(--border)] relative">
+                      <span className="absolute left-1/2 -top-2.5 -translate-x-1/2 bg-[var(--card)] px-3 text-xs text-[var(--muted-foreground)]">or enter new</span>
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium mb-1.5 block">Full Name</label>
@@ -191,6 +250,11 @@ export default function CheckoutPage() {
                   <Shield className="w-4 h-4 shrink-0" />
                   Your payment is secured with 256-bit SSL encryption
                 </div>
+                {error && (
+                  <div className="mt-4 p-3 rounded-lg bg-error/10 text-error text-sm font-medium border border-error/20">
+                    {error}
+                  </div>
+                )}
                 <button
                   onClick={handlePlaceOrder}
                   disabled={loading}

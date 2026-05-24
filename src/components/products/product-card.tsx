@@ -67,7 +67,17 @@ export function ProductCard({ product, onQuickView, index = 0 }: ProductCardProp
             'w-full h-full bg-gradient-to-br from-blush-100 to-ivory-200 dark:from-charcoal-800 dark:to-charcoal-700 flex items-center justify-center transition-transform duration-500',
             isHovered && 'scale-105'
           )}>
-            <span className="text-6xl opacity-30">💎</span>
+            {product.images?.[0] ? (
+              <Image
+                src={product.images[0]}
+                alt={product.name}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            ) : (
+              <span className="text-6xl opacity-30">💎</span>
+            )}
           </div>
 
           {/* Badges */}
